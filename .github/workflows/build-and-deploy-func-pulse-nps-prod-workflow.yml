@@ -10,16 +10,16 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: func-pulse-nps-prod # set this to your function app name on Azure
-  PACKAGE_DIRECTORY: '.' # set this to the directory which contains pom.xml file
-  JAVA_VERSION: '21' # set this to the java version to use
+  AZURE_FUNCTIONAPP_NAME: func-pulse-nps-prod
+  PACKAGE_DIRECTORY: '.'
+  JAVA_VERSION: '21'
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: 'Checkout GitHub Action'
@@ -36,7 +36,7 @@ jobs:
           pushd './${{ env.PACKAGE_DIRECTORY }}'
           mvn clean package
           popd
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -50,7 +50,5 @@ jobs:
         with:
           app-name: 'func-pulse-nps-prod'
           slot-name: 'Production'
-          package: '${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/func-pulse-nps-prod'
+          package: '${{ env.PACKAGE_DIRECTORY }}'
           respect-pom-xml: true
-
-          
