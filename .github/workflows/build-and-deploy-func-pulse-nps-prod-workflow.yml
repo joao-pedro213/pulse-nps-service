@@ -50,5 +50,5 @@ jobs:
         with:
           app-name: 'func-pulse-nps-prod'
           slot-name: 'Production'
-          package: '${{ env.PACKAGE_DIRECTORY }}'
+          package: '${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/func-pulse-nps-prod'
           respect-pom-xml: true
