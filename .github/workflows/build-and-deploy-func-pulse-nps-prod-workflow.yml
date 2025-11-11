@@ -22,14 +22,19 @@ jobs:
       contents: read
 
     steps:
+      # Retrieves the source code from the repository to make it available for subsequent workflow steps
       - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
+      # Configures the Java Development Kit (JDK) environment with the specified version
+      # This step is required to compile and build the Java-based Azure Functions project
       - name: Setup Java Sdk ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ env.JAVA_VERSION }}
 
+      # Executes Maven build lifecycle to clean previous artifacts, compile source code,
+      # run unit tests, and package the application into deployable artifacts
       - name: 'Restore Project Dependencies Using Mvn'
         shell: pwsh
         run: |+
@@ -37,6 +42,8 @@ jobs:
           mvn clean package
           popd
 
+      # Authenticates to Azure using OpenID Connect (OIDC) with a service principal
+      # This establishes a secure session for subsequent Azure resource operations
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -44,6 +51,8 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_45DB732734C04F88AFD790A2BD3522BF }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_927300CAF15542008147AC9F400DBA51 }}
 
+      # Deploys the packaged Azure Functions application to the specified Function App
+      # in the production slot using the artifacts generated during the build step
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
