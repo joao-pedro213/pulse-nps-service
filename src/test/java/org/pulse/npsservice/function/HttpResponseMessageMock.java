@@ -1,4 +1,4 @@
-package org.pulse.npsservice;
+package org.pulse.npsservice.function;
 
 import com.microsoft.azure.functions.HttpResponseMessage;
 import com.microsoft.azure.functions.HttpStatus;
