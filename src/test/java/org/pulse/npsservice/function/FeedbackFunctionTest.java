@@ -8,6 +8,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -59,7 +60,7 @@ class FeedbackFunctionTest {
         doReturn(Logger.getGlobal()).when(context).getLogger();
 
         // When
-        final HttpResponseMessage ret = function.createFeedbackHandler(req, context);
+        final HttpResponseMessage ret = function.create(req, context);
 
         // Then
         assertEquals(HttpStatus.CREATED, ret.getStatus());
@@ -73,7 +74,7 @@ class FeedbackFunctionTest {
 
     @Test
     void testFeedbackFunctionWithEmptyBody() {
-        // When
+        // Given
         @SuppressWarnings("unchecked") final HttpRequestMessage<Optional<FeedbackRequestDto>> req = mock(HttpRequestMessage.class);
         final Optional<FeedbackRequestDto> queryBody = Optional.empty();
         doReturn(queryBody).when(req).getBody();
@@ -87,8 +88,8 @@ class FeedbackFunctionTest {
         final ExecutionContext context = mock(ExecutionContext.class);
         doReturn(Logger.getGlobal()).when(context).getLogger();
 
-        // Given
-        final HttpResponseMessage ret = function.createFeedbackHandler(req, context);
+        // When
+        final HttpResponseMessage ret = function.create(req, context);
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, ret.getStatus());
@@ -97,5 +98,64 @@ class FeedbackFunctionTest {
         ErrorResponse errorResponse = (ErrorResponse) ret.getBody();
         assertEquals("Request body is required", errorResponse.message());
         assertEquals(400, errorResponse.status());
+    }
+
+    @Test
+    void testFeedbackFunctionWithValidationError() {
+        // Given
+        @SuppressWarnings("unchecked") final HttpRequestMessage<Optional<FeedbackRequestDto>> req = mock(HttpRequestMessage.class);
+        final FeedbackRequestDto requestDto = new FeedbackRequestDto(8, "Great service!");
+        final Optional<FeedbackRequestDto> queryBody = Optional.of(requestDto);
+        doReturn(queryBody).when(req).getBody();
+
+        // Mock validation exception from service
+        when(this.feedbackService.create(any(FeedbackRequestDto.class)))
+                .thenReturn(Uni.createFrom().failure(mock(ConstraintViolationException.class)));
+
+        doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
+            HttpStatus status = (HttpStatus) invocation.getArguments()[0];
+            return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
+        }).when(req).createResponseBuilder(any(HttpStatus.class));
+        final ExecutionContext context = mock(ExecutionContext.class);
+        doReturn(Logger.getGlobal()).when(context).getLogger();
+
+        // When
+        final HttpResponseMessage ret = function.create(req, context);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, ret.getStatus());
+        assertNotNull(ret.getBody());
+        assertInstanceOf(ErrorResponse.class, ret.getBody());
+    }
+
+    @Test
+    void testFeedbackFunctionWithInternalError() {
+        // Given
+        @SuppressWarnings("unchecked") final HttpRequestMessage<Optional<FeedbackRequestDto>> req = mock(HttpRequestMessage.class);
+        final FeedbackRequestDto requestDto = new FeedbackRequestDto(8, "Great service!");
+        final Optional<FeedbackRequestDto> queryBody = Optional.of(requestDto);
+        doReturn(queryBody).when(req).getBody();
+
+        // Mock unexpected exception from service
+        when(this.feedbackService.create(any(FeedbackRequestDto.class)))
+                .thenReturn(Uni.createFrom().failure(new RuntimeException("Database connection failed")));
+
+        doAnswer((Answer<HttpResponseMessage.Builder>) invocation -> {
+            HttpStatus status = (HttpStatus) invocation.getArguments()[0];
+            return new HttpResponseMessageMock.HttpResponseMessageBuilderMock().status(status);
+        }).when(req).createResponseBuilder(any(HttpStatus.class));
+        final ExecutionContext context = mock(ExecutionContext.class);
+        doReturn(Logger.getGlobal()).when(context).getLogger();
+
+        // When
+        final HttpResponseMessage ret = function.create(req, context);
+
+        // Then
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ret.getStatus());
+        assertNotNull(ret.getBody());
+        assertInstanceOf(ErrorResponse.class, ret.getBody());
+        ErrorResponse errorResponse = (ErrorResponse) ret.getBody();
+        assertEquals("Internal server error", errorResponse.message());
+        assertEquals(500, errorResponse.status());
     }
 }
