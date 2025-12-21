@@ -12,18 +12,31 @@ import java.time.Instant;
 
 @ApplicationScoped
 public class FeedbackService {
+    private FeedbackRepository feedbackRepository;
+
+    private DetractorProducer detractorProducer;
 
     @Inject
-    FeedbackRepository feedbackRepository;
+    public FeedbackService(FeedbackRepository feedbackRepository, DetractorProducer detractorProducer) {
+        this.feedbackRepository = feedbackRepository;
+        this.detractorProducer = detractorProducer;
+    }
 
     public Uni<FeedbackResponseDto> create(FeedbackRequestDto requestDto) {
-        FeedbackModel model = new FeedbackModel(requestDto.score(), requestDto.comment(), Instant.now());
+        this.handleDetractor(requestDto);
+        FeedbackModel feedbackModel = new FeedbackModel(requestDto.score(), requestDto.comment(), Instant.now());
         return this.feedbackRepository
-                .persist(model)
-                .map(persistedModel -> new FeedbackResponseDto(
-                        persistedModel.getId().toString(),
-                        persistedModel.getScore(),
-                        persistedModel.getComment(),
-                        persistedModel.getCreatedAt().toString()));
+                .persist(feedbackModel)
+                .map(persistedFeedbackModel -> new FeedbackResponseDto(
+                        persistedFeedbackModel.getId().toString(),
+                        persistedFeedbackModel.getScore(),
+                        persistedFeedbackModel.getComment(),
+                        persistedFeedbackModel.getCreatedAt().toString()));
+    }
+
+    private void handleDetractor(FeedbackRequestDto requestDto) {
+        if (requestDto.score() < 7) {
+            this.detractorProducer.sendMessage(requestDto);
+        }
     }
 }

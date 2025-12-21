@@ -17,6 +17,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,9 @@ class FeedbackServiceTest {
 
     @InjectMock
     FeedbackRepository feedbackRepository;
+
+    @InjectMock
+    DetractorProducer detractorProducer;
 
     @Test
     void testCreate() {
@@ -54,5 +58,35 @@ class FeedbackServiceTest {
         assertEquals(validComment, result.comment());
         assertEquals(expectedCreatedAt, result.createdAt());
         verify(this.feedbackRepository).persist(any(FeedbackModel.class));
+        verify(this.detractorProducer, never()).sendMessage(any(FeedbackRequestDto.class));
+    }
+
+    @Test
+    void testCreateWithDetractor() {
+        // Given
+        int detractorScore = 5;
+        String validComment = "Poor service";
+        String expectedFeedbackId = "507f1f77bcf86cd799439012";
+        String expectedCreatedAt = "2025-11-17T22:49:20.389Z";
+        FeedbackRequestDto requestDto = new FeedbackRequestDto(detractorScore, validComment);
+        FeedbackModel mockModel = new FeedbackModel(detractorScore, validComment, Instant.parse(expectedCreatedAt));
+        mockModel.setId(new ObjectId(expectedFeedbackId));
+        when(this.feedbackRepository.persist(any(FeedbackModel.class))).thenReturn(Uni.createFrom().item(mockModel));
+
+        // When
+        FeedbackResponseDto result = this.feedbackService
+                .create(requestDto)
+                .subscribe().withSubscriber(UniAssertSubscriber.create())
+                .assertCompleted()
+                .getItem();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(expectedFeedbackId, result.id());
+        assertEquals(detractorScore, result.score());
+        assertEquals(validComment, result.comment());
+        assertEquals(expectedCreatedAt, result.createdAt());
+        verify(this.feedbackRepository).persist(any(FeedbackModel.class));
+        verify(this.detractorProducer).sendMessage(requestDto);
     }
 }
