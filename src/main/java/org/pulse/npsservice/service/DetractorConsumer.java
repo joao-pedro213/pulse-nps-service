@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
-import org.pulse.npsservice.dto.FeedbackRequestDto;
+import org.pulse.npsservice.dto.FeedbackDto;
 
 @ApplicationScoped
 public class DetractorConsumer {
@@ -18,7 +18,7 @@ public class DetractorConsumer {
 
     public void processMessage(String message) {
         try {
-            FeedbackRequestDto feedback = this.objectMapper.readValue(message, FeedbackRequestDto.class);
+            FeedbackDto feedback = this.objectMapper.readValue(message, FeedbackDto.class);
             this.emailService.sendDetractorNotification(feedback);
 
         } catch (Exception exception) {

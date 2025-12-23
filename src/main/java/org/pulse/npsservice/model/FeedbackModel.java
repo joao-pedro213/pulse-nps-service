@@ -2,6 +2,7 @@ package org.pulse.npsservice.model;
 
 import io.quarkus.mongodb.panache.common.MongoEntity;
 import org.bson.types.ObjectId;
+import org.pulse.npsservice.domain.FeedbackType;
 
 import java.time.Instant;
 
@@ -10,14 +11,16 @@ public class FeedbackModel {
     private ObjectId id;
     private int score;
     private String comment;
+    private FeedbackType type;
     private Instant createdAt;
 
     public FeedbackModel() {
     }
 
-    public FeedbackModel(int score, String comment, Instant createdAt) {
+    public FeedbackModel(int score, String comment, FeedbackType type, Instant createdAt) {
         this.score = score;
         this.comment = comment;
+        this.type = type;
         this.createdAt = createdAt;
     }
 
@@ -43,6 +46,14 @@ public class FeedbackModel {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public FeedbackType getType() {
+        return type;
+    }
+
+    public void setType(FeedbackType type) {
+        this.type = type;
     }
 
     public Instant getCreatedAt() {

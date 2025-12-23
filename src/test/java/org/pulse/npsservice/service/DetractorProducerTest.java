@@ -9,7 +9,8 @@ import io.quarkus.test.junit.mockito.InjectSpy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.pulse.npsservice.dto.FeedbackRequestDto;
+import org.pulse.npsservice.domain.FeedbackType;
+import org.pulse.npsservice.dto.FeedbackDto;
 
 import java.lang.reflect.Field;
 
@@ -37,11 +38,11 @@ class DetractorProducerTest {
         // Given
         int score = 5;
         String comment = "Poor service";
-        FeedbackRequestDto requestDto = new FeedbackRequestDto(score, comment);
-        String expectedJson = new ObjectMapper().writeValueAsString(requestDto);
+        FeedbackDto feedbackDto = new FeedbackDto(score, comment, FeedbackType.DETRACTOR);
+        String expectedJson = new ObjectMapper().writeValueAsString(feedbackDto);
 
         // When
-        this.detractorProducer.sendMessage(requestDto);
+        this.detractorProducer.sendMessage(feedbackDto);
 
         // Then
         ArgumentCaptor<ServiceBusMessage> messageCaptor = ArgumentCaptor.forClass(ServiceBusMessage.class);

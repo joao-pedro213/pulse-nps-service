@@ -7,6 +7,7 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.pulse.npsservice.domain.FeedbackType;
 import org.pulse.npsservice.dto.ErrorResponse;
 import org.pulse.npsservice.dto.FeedbackResponseDto;
 import org.pulse.npsservice.function.HttpResponseMessageMock;
@@ -41,6 +42,7 @@ class ResponseBuilderTest {
                 feedbackId,
                 feedbackScore,
                 feedbackComment,
+                FeedbackType.NEUTRAL,
                 feedbackCreatedAt);
 
         doAnswer(invocation -> {

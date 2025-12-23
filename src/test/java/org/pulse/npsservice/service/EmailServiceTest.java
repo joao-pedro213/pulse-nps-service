@@ -10,7 +10,8 @@ import io.quarkus.test.junit.mockito.InjectSpy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.pulse.npsservice.dto.FeedbackRequestDto;
+import org.pulse.npsservice.domain.FeedbackType;
+import org.pulse.npsservice.dto.FeedbackDto;
 
 import java.lang.reflect.Field;
 
@@ -39,7 +40,7 @@ class EmailServiceTest {
     @Test
     void testSendDetractorNotificationSuccessfully() {
         // Given
-        FeedbackRequestDto feedback = new FeedbackRequestDto(4, "Service was below expectations");
+        FeedbackDto feedback = new FeedbackDto(4, "Service was below expectations", FeedbackType.DETRACTOR);
         @SuppressWarnings("unchecked")
         SyncPoller<EmailSendResult, EmailSendResult> mockPoller = mock(SyncPoller.class);
         PollResponse<EmailSendResult> mockResponse = mock(PollResponse.class);
@@ -57,13 +58,14 @@ class EmailServiceTest {
         verify(this.emailClient).beginSend(messageCaptor.capture());
         com.azure.communication.email.models.EmailMessage capturedMessage = messageCaptor.getValue();
         assertTrue(capturedMessage.getBodyPlainText().contains("Score: 4/10"));
+        assertTrue(capturedMessage.getBodyPlainText().contains("Type: DETRACTOR"));
         assertTrue(capturedMessage.getBodyPlainText().contains("Service was below expectations"));
     }
 
     @Test
     void testEmailBodyContainsExpectedContent() {
         // Given
-        FeedbackRequestDto feedback = new FeedbackRequestDto(2, "Terrible experience");
+        FeedbackDto feedback = new FeedbackDto(2, "Terrible experience", FeedbackType.DETRACTOR);
         @SuppressWarnings("unchecked")
         SyncPoller<EmailSendResult, EmailSendResult> mockPoller = mock(SyncPoller.class);
         PollResponse<EmailSendResult> mockResponse = mock(PollResponse.class);
@@ -83,6 +85,7 @@ class EmailServiceTest {
         String body = capturedMessage.getBodyPlainText();
         assertTrue(body.contains("A detractor feedback has been received"));
         assertTrue(body.contains("Score: 2/10"));
+        assertTrue(body.contains("Type: DETRACTOR"));
         assertTrue(body.contains("Comment: Terrible experience"));
         assertTrue(body.contains("Please follow up with this customer"));
         assertTrue(body.contains("Pulse NPS Service"));

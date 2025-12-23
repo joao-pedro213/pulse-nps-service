@@ -3,12 +3,12 @@ package org.pulse.npsservice.service;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.pulse.npsservice.domain.FeedbackEntity;
+import org.pulse.npsservice.dto.FeedbackDto;
 import org.pulse.npsservice.dto.FeedbackRequestDto;
 import org.pulse.npsservice.dto.FeedbackResponseDto;
 import org.pulse.npsservice.model.FeedbackModel;
 import org.pulse.npsservice.repository.FeedbackRepository;
-
-import java.time.Instant;
 
 @ApplicationScoped
 public class FeedbackService {
@@ -23,20 +23,30 @@ public class FeedbackService {
     }
 
     public Uni<FeedbackResponseDto> create(FeedbackRequestDto requestDto) {
-        this.handleDetractor(requestDto);
-        FeedbackModel feedbackModel = new FeedbackModel(requestDto.score(), requestDto.comment(), Instant.now());
+        FeedbackEntity feedbackEntity = new FeedbackEntity(requestDto.score(), requestDto.comment());
+        this.handleDetractor(feedbackEntity);
+        FeedbackModel feedbackModel = new FeedbackModel(
+                feedbackEntity.getScore(),
+                feedbackEntity.getComment(),
+                feedbackEntity.getType(),
+                feedbackEntity.getCreatedAt());
         return this.feedbackRepository
                 .persist(feedbackModel)
                 .map(persistedFeedbackModel -> new FeedbackResponseDto(
                         persistedFeedbackModel.getId().toString(),
                         persistedFeedbackModel.getScore(),
                         persistedFeedbackModel.getComment(),
+                        persistedFeedbackModel.getType(),
                         persistedFeedbackModel.getCreatedAt().toString()));
     }
 
-    private void handleDetractor(FeedbackRequestDto requestDto) {
-        if (requestDto.score() < 7) {
-            this.detractorProducer.sendMessage(requestDto);
+    private void handleDetractor(FeedbackEntity feedbackEntity) {
+        if (feedbackEntity.isDetractor()) {
+            FeedbackDto feedbackDto = new FeedbackDto(
+                    feedbackEntity.getScore(),
+                    feedbackEntity.getComment(),
+                    feedbackEntity.getType());
+            this.detractorProducer.sendMessage(feedbackDto);
         }
     }
 }

@@ -12,6 +12,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.pulse.npsservice.domain.FeedbackType;
 import org.pulse.npsservice.dto.ErrorResponse;
 import org.pulse.npsservice.dto.FeedbackRequestDto;
 import org.pulse.npsservice.dto.FeedbackResponseDto;
@@ -49,6 +50,7 @@ class FeedbackFunctionTest {
                 "507f1f77bcf86cd799439011",
                 8,
                 "Great service!",
+                FeedbackType.NEUTRAL,
                 "2025-11-17T22:49:20.389Z"
         );
         when(this.feedbackService.create(any(FeedbackRequestDto.class))).thenReturn(Uni.createFrom().item(mockResponse));

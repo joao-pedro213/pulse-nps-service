@@ -10,7 +10,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
-import org.pulse.npsservice.dto.FeedbackRequestDto;
+import org.pulse.npsservice.dto.FeedbackDto;
 
 @ApplicationScoped
 public class DetractorProducer {
@@ -35,9 +35,9 @@ public class DetractorProducer {
         }
     }
 
-    public void sendMessage(FeedbackRequestDto requestDto) {
+    public void sendMessage(FeedbackDto feedbackDto) {
         try {
-            String feedbackJson = new ObjectMapper().writeValueAsString(requestDto);
+            String feedbackJson = new ObjectMapper().writeValueAsString(feedbackDto);
             ServiceBusMessage serviceBusMessage = new ServiceBusMessage(feedbackJson);
             this.senderClient.sendMessage(serviceBusMessage);
         } catch (JsonProcessingException exception) {

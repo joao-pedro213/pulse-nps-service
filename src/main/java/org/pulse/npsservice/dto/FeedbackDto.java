@@ -2,11 +2,9 @@ package org.pulse.npsservice.dto;
 
 import org.pulse.npsservice.domain.FeedbackType;
 
-public record FeedbackResponseDto(
-        String id,
+public record FeedbackDto(
         int score,
         String comment,
-        FeedbackType type,
-        String createdAt
+        FeedbackType type
 ) {
 }

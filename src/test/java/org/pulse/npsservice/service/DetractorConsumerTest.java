@@ -5,7 +5,8 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.pulse.npsservice.dto.FeedbackRequestDto;
+import org.pulse.npsservice.domain.FeedbackType;
+import org.pulse.npsservice.dto.FeedbackDto;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,15 +30,15 @@ class DetractorConsumerTest {
         // Given
         int score = 5;
         String comment = "Poor service";
-        FeedbackRequestDto requestDto = new FeedbackRequestDto(score, comment);
-        String message = objectMapper.writeValueAsString(requestDto);
-        doNothing().when(emailService).sendDetractorNotification(any(FeedbackRequestDto.class));
+        FeedbackDto feedbackDto = new FeedbackDto(score, comment, FeedbackType.DETRACTOR);
+        String message = this.objectMapper.writeValueAsString(feedbackDto);
+        doNothing().when(this.emailService).sendDetractorNotification(any(FeedbackDto.class));
 
         // When
-        detractorConsumer.processMessage(message);
+        this.detractorConsumer.processMessage(message);
 
         // Then - verify email service was called
-        verify(emailService).sendDetractorNotification(any(FeedbackRequestDto.class));
+        verify(this.emailService).sendDetractorNotification(any(FeedbackDto.class));
     }
 
     @Test
@@ -46,7 +47,7 @@ class DetractorConsumerTest {
         String invalidMessage = "{ invalid json }";
 
         // When/Then
-        assertThrows(RuntimeException.class, () -> detractorConsumer.processMessage(invalidMessage));
+        assertThrows(RuntimeException.class, () -> this.detractorConsumer.processMessage(invalidMessage));
     }
 
     @Test
@@ -55,6 +56,6 @@ class DetractorConsumerTest {
         String emptyMessage = "";
 
         // When/Then
-        assertThrows(RuntimeException.class, () -> detractorConsumer.processMessage(emptyMessage));
+        assertThrows(RuntimeException.class, () -> this.detractorConsumer.processMessage(emptyMessage));
     }
 }

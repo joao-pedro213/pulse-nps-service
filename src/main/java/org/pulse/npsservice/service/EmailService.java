@@ -8,7 +8,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
-import org.pulse.npsservice.dto.FeedbackRequestDto;
+import org.pulse.npsservice.dto.FeedbackDto;
 
 @ApplicationScoped
 public class EmailService {
@@ -31,7 +31,7 @@ public class EmailService {
         this.emailClient = new EmailClientBuilder().connectionString(this.connectionString).buildClient();
     }
 
-    public void sendDetractorNotification(FeedbackRequestDto feedback) {
+    public void sendDetractorNotification(FeedbackDto feedback) {
         try {
             EmailMessage message = new EmailMessage()
                     .setSenderAddress(this.senderAddress)
@@ -45,17 +45,18 @@ public class EmailService {
         }
     }
 
-    private String buildEmailBody(FeedbackRequestDto feedback) {
+    private String buildEmailBody(FeedbackDto feedback) {
         return String.format("""
                 A detractor feedback has been received:
                 
                 Score: %d/10
+                Type: %s
                 Comment: %s
                 
                 Please follow up with this customer as soon as possible.
                 
                 ---
                 This is an automated notification from the Pulse NPS Service.
-                """, feedback.score(), feedback.comment());
+                """, feedback.score(), feedback.type(), feedback.comment());
     }
 }
