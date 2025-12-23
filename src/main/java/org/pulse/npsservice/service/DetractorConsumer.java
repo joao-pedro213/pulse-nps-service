@@ -18,7 +18,7 @@ public class DetractorConsumer {
 
     public void processMessage(String message) {
         try {
-            FeedbackRequestDto feedback = objectMapper.readValue(message, FeedbackRequestDto.class);
+            FeedbackRequestDto feedback = this.objectMapper.readValue(message, FeedbackRequestDto.class);
             this.emailService.sendDetractorNotification(feedback);
 
         } catch (Exception exception) {

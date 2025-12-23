@@ -4,10 +4,6 @@ import com.azure.communication.email.EmailClient;
 import com.azure.communication.email.EmailClientBuilder;
 import com.azure.communication.email.models.EmailAddress;
 import com.azure.communication.email.models.EmailMessage;
-import com.azure.communication.email.models.EmailSendResult;
-import com.azure.core.util.polling.PollResponse;
-import com.azure.core.util.polling.SyncPoller;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -18,8 +14,6 @@ public class EmailService {
 
     private static final Logger LOGGER = Logger.getLogger(EmailService.class);
 
-    private EmailClient emailClient;
-
     @ConfigProperty(name = "azure.communication.email.connection-string")
     String connectionString;
 
@@ -29,20 +23,15 @@ public class EmailService {
     @ConfigProperty(name = "email.detractor.recipient")
     String detractorRecipient;
 
-    @PostConstruct
-    public void init() {
-        this.emailClient = new EmailClientBuilder().connectionString(this.connectionString).buildClient();
-    }
-
     public void sendDetractorNotification(FeedbackRequestDto feedback) {
         try {
+            EmailClient emailClient = new EmailClientBuilder().connectionString(this.connectionString).buildClient();
             EmailMessage message = new EmailMessage()
                     .setSenderAddress(this.senderAddress)
                     .setToRecipients(new EmailAddress(this.detractorRecipient))
                     .setSubject("Detractor Alert - Low NPS Score Received")
                     .setBodyPlainText(this.buildEmailBody(feedback));
-            SyncPoller<EmailSendResult, EmailSendResult> poller = this.emailClient.beginSend(message);
-            PollResponse<EmailSendResult> response = poller.waitForCompletion();
+            emailClient.beginSend(message);
         } catch (Exception exception) {
             LOGGER.error("Failed to send detractor notification email", exception);
             throw new RuntimeException("Error sending detractor notification email", exception);
