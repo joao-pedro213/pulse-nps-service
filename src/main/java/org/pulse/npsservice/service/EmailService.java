@@ -4,6 +4,7 @@ import com.azure.communication.email.EmailClient;
 import com.azure.communication.email.EmailClientBuilder;
 import com.azure.communication.email.models.EmailAddress;
 import com.azure.communication.email.models.EmailMessage;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -23,15 +24,21 @@ public class EmailService {
     @ConfigProperty(name = "email.detractor.recipient")
     String detractorRecipient;
 
+    private EmailClient emailClient;
+
+    @PostConstruct
+    public void init() {
+        this.emailClient = new EmailClientBuilder().connectionString(this.connectionString).buildClient();
+    }
+
     public void sendDetractorNotification(FeedbackRequestDto feedback) {
         try {
-            EmailClient emailClient = new EmailClientBuilder().connectionString(this.connectionString).buildClient();
             EmailMessage message = new EmailMessage()
                     .setSenderAddress(this.senderAddress)
                     .setToRecipients(new EmailAddress(this.detractorRecipient))
                     .setSubject("Detractor Alert - Low NPS Score Received")
                     .setBodyPlainText(this.buildEmailBody(feedback));
-            emailClient.beginSend(message);
+            this.emailClient.beginSend(message);
         } catch (Exception exception) {
             LOGGER.error("Failed to send detractor notification email", exception);
             throw new RuntimeException("Error sending detractor notification email", exception);

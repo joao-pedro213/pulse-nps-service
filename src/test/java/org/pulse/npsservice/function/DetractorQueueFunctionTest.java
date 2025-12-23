@@ -52,11 +52,10 @@ class DetractorQueueFunctionTest {
         doReturn(Logger.getGlobal()).when(context).getLogger();
         doThrow(new RuntimeException("Processing failed")).when(this.detractorConsumer).processMessage(anyString());
 
-        // When/Then - should propagate exception
+        // When/Then
         try {
             this.function.notify(invalidMessage, context);
-        } catch (RuntimeException e) {
-            // Expected behavior - exception should propagate
+        } catch (RuntimeException exception) {
             verify(this.detractorConsumer).processMessage(invalidMessage);
         }
     }
