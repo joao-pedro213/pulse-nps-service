@@ -10,7 +10,7 @@ import org.pulse.npsservice.service.DetractorConsumer;
 @ApplicationScoped
 public class DetractorNotificationFunction {
 
-    private final DetractorConsumer detractorConsumer;
+    private DetractorConsumer detractorConsumer;
 
     @Inject
     public DetractorNotificationFunction(DetractorConsumer detractorConsumer) {

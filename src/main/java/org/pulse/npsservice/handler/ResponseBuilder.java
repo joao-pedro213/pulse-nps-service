@@ -20,6 +20,10 @@ public class ResponseBuilder {
         return request.createResponseBuilder(HttpStatus.CREATED).body(body).build();
     }
 
+    public HttpResponseMessage noContent(HttpRequestMessage<?> request) {
+        return request.createResponseBuilder(HttpStatus.NO_CONTENT).build();
+    }
+
     public HttpResponseMessage error(HttpRequestMessage<?> request, Throwable throwable) {
         ErrorResponse errorResponse = this.exceptionMapper.mapToErrorResponse(throwable);
         return request.createResponseBuilder(HttpStatus.valueOf(errorResponse.status())).body(errorResponse).build();

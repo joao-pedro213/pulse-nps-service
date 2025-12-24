@@ -21,9 +21,9 @@ import java.util.Set;
 
 @ApplicationScoped
 public class FeedbackFunction {
-    private final FeedbackService feedbackService;
-    private final ResponseBuilder responseBuilder;
-    private final Validator validator;
+    private FeedbackService feedbackService;
+    private ResponseBuilder responseBuilder;
+    private Validator validator;
 
     @Inject
     public FeedbackFunction(FeedbackService feedbackService, ResponseBuilder responseBuilder, Validator validator) {
