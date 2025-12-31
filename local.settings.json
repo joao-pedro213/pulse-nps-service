@@ -1,9 +1,0 @@
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "",
-    "AzureWebJobsServiceBus": "",
-    "QUARKUS_AZURE_KEYVAULT_SECRET_ENDPOINT": "",
-    "FUNCTIONS_WORKER_RUNTIME": "java"
-  }
-}
