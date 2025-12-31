@@ -37,7 +37,7 @@ public class FeedbackFunction {
             @HttpTrigger(
                     name = "req",
                     methods = {HttpMethod.POST},
-                    authLevel = AuthorizationLevel.ANONYMOUS)
+                    authLevel = AuthorizationLevel.ADMIN)
             HttpRequestMessage<Optional<FeedbackRequestDto>> request,
             final ExecutionContext context) {
         return request

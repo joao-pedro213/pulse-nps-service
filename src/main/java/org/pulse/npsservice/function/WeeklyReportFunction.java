@@ -36,7 +36,7 @@ public class WeeklyReportFunction {
             @HttpTrigger(
                     name = "req",
                     methods = {HttpMethod.POST},
-                    authLevel = AuthorizationLevel.ANONYMOUS)
+                    authLevel = AuthorizationLevel.ADMIN)
             HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
         return this.weeklyReportService
