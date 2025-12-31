@@ -45,6 +45,7 @@ public class WeeklyReportService {
 
     private WeeklyReportDto buildWeeklyReport(List<FeedbackModel> feedbacks, LocalDate startDate, LocalDate endDate) {
         long totalFeedbacks = feedbacks.size();
+        double averageScore = this.calculateAverageScore(feedbacks);
         List<DailyFeedbackCountDto> feedbackCountByDay = this.aggregateFeedbacksByDay(feedbacks, startDate, endDate);
         List<FeedbackTypeCountDto> feedbackCountByType = this.aggregateFeedbacksByType(feedbacks);
         String description = String.format("Weekly Feedback Report - %s a %s", startDate, endDate);
@@ -54,6 +55,7 @@ public class WeeklyReportService {
                 endDate,
                 LocalDate.now(),
                 totalFeedbacks,
+                averageScore,
                 feedbackCountByDay,
                 feedbackCountByType);
     }
@@ -87,5 +89,12 @@ public class WeeklyReportService {
                 new FeedbackTypeCountDto(FeedbackType.DETRACTOR, feedbacksByType.getOrDefault(FeedbackType.DETRACTOR, 0L)),
                 new FeedbackTypeCountDto(FeedbackType.NEUTRAL, feedbacksByType.getOrDefault(FeedbackType.NEUTRAL, 0L)),
                 new FeedbackTypeCountDto(FeedbackType.PROMOTER, feedbacksByType.getOrDefault(FeedbackType.PROMOTER, 0L)));
+    }
+
+    private double calculateAverageScore(List<FeedbackModel> feedbacks) {
+        if (feedbacks.isEmpty()) {
+            return 0.0;
+        }
+        return feedbacks.stream().mapToInt(FeedbackModel::getScore).average().orElse(0.0);
     }
 }

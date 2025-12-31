@@ -88,7 +88,8 @@ public class EmailService {
         body.append("=".repeat(60)).append("\n");
         body.append("SUMMARY\n");
         body.append("=".repeat(60)).append("\n");
-        body.append(String.format("Total Feedbacks: %d\n\n", report.totalFeedbacks()));
+        body.append(String.format("Total Feedbacks: %d\n", report.totalFeedbacks()));
+        body.append(String.format("Average Score: %.2f/10\n\n", report.averageScore()));
         body.append("Feedbacks by Urgency:\n");
         for (FeedbackTypeCountDto typeCount : report.feedbackCountByType()) {
             body.append(String.format("  • %s (%s): %d\n", typeCount.type(), typeCount.urgency(), typeCount.count()));

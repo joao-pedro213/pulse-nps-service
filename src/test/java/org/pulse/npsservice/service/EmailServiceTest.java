@@ -107,6 +107,7 @@ class EmailServiceTest {
                 endDate,
                 LocalDate.now(),
                 10L,
+                7.5,
                 List.of(
                         new DailyFeedbackCountDto(startDate, 2L),
                         new DailyFeedbackCountDto(startDate.plusDays(1), 3L),
@@ -147,6 +148,7 @@ class EmailServiceTest {
                 endDate,
                 LocalDate.now(),
                 15L,
+                8.3,
                 List.of(
                         new DailyFeedbackCountDto(startDate, 5L),
                         new DailyFeedbackCountDto(startDate.plusDays(1), 10L)),
@@ -173,6 +175,7 @@ class EmailServiceTest {
         String body = capturedMessage.getBodyPlainText();
         // Verify summary section
         assertTrue(body.contains("Total Feedbacks: 15"));
+        assertTrue(body.contains("Average Score:"));
         assertTrue(body.contains("SUMMARY"));
         // Verify urgency counts
         assertTrue(body.contains("DETRACTOR"));

@@ -57,6 +57,7 @@ class WeeklyReportServiceTest {
         assertEquals(startOfLastWeek, report.startDate());
         assertEquals(endOfLastWeek, report.endDate());
         assertEquals(6, report.totalFeedbacks());
+        assertEquals(7.5, report.averageScore(), 0.01);
         assertEquals(7, report.feedbackCountByDay().size());
         assertEquals(2, report.feedbackCountByDay().get(0).count());
         assertEquals(2, report.feedbackCountByDay().get(1).count());
@@ -91,6 +92,7 @@ class WeeklyReportServiceTest {
         assertEquals(startOfLastWeek, report.startDate());
         assertEquals(endOfLastWeek, report.endDate());
         assertEquals(0, report.totalFeedbacks());
+        assertEquals(0.0, report.averageScore(), 0.01);
         assertEquals(7, report.feedbackCountByDay().size());
         report.feedbackCountByDay().forEach(day -> assertEquals(0, day.count()));
         assertEquals(3, report.feedbackCountByType().size());

@@ -9,6 +9,7 @@ public record WeeklyReportDto(
         LocalDate endDate,
         LocalDate reportGeneratedAt,
         long totalFeedbacks,
+        double averageScore,
         List<DailyFeedbackCountDto> feedbackCountByDay,
         List<FeedbackTypeCountDto> feedbackCountByType
 ) {
